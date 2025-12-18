@@ -51,8 +51,24 @@ func (p *GoModPlugin) Execute(ctx context.Context, req plugin.ExecuteRequest) (*
 	}
 }
 
+// Config holds the plugin configuration.
+type Config struct {
+	ModulePath string `json:"module_path"`
+	Private    bool   `json:"private"`
+}
+
+// ParseConfig parses the plugin configuration with defaults.
+func ParseConfig(config map[string]any) Config {
+	cp := helpers.NewConfigParser(config)
+	return Config{
+		ModulePath: cp.GetString("module_path", "", ""),
+		Private:    cp.GetBool("private", false),
+	}
+}
+
 // Validate validates the plugin configuration.
 func (p *GoModPlugin) Validate(_ context.Context, config map[string]any) (*plugin.ValidateResponse, error) {
 	vb := helpers.NewValidationBuilder()
+	vb.RequireString(config, "module_path", "")
 	return vb.Build(), nil
 }
